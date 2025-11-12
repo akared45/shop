@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clean Architecture - Chi tiết Folder Structure</title>
+    <style>
+        :root {
+            --domain: #e74c3c;
+            --application: #3498db;
+            --infrastructure: #27ae60;
+            --presentation: #f39c12;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        body {
+            background: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            background: linear-gradient(135deg, #2c3e50, #3498db);
+            color: white;
+            padding: 2rem 0;
+            text-align: center;
+            border-radius: 0 0 20px 20px;
+            margin-bottom: 2rem;
+        }
+
+
+
+        .layer {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-top: 4px solid;
+        }
+
+        .layer-domain {
+            border-top-color: var(--domain);
+        }
+
+        .layer-application {
+            border-top-color: var(--application);
+        }
+
+        .layer-infrastructure {
+            border-top-color: var(--infrastructure);
+        }
+
+        .layer-presentation {
+            border-top-color: var(--presentation);
+        }
+
+        .folder-item {
+            margin: 1rem 0;
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 5px;
+        }
+
+        .folder-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.5rem;
+            cursor: pointer;
+        }
+
+        .folder-icon {
+            margin-right: 10px;
+            font-size: 1.2rem;
+        }
+
+        .folder-content {
+            margin-left: 2rem;
+            display: none;
+        }
+
+        .folder-expanded .folder-content {
+            display: block;
+        }
+
+        .file-item {
+            padding: 0.3rem 0;
+            margin-left: 1rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .file-icon {
+            margin-right: 8px;
+        }
+
+        .responsibility {
+            background: #e8f4fd;
+            padding: 0.5rem;
+            border-radius: 3px;
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <div class="container">
+            <h1>Clean Architecture Structure</h1>
+            <p>Chi tiết nhiệm vụ từng folder và file</p>
+        </div>
+    </header>
+
+    <div class="container">
+        <div id="layers" class="layers-container"></div>
+    </div>
+    </div>
+
+    <script>
+        const architectureData = {
+            layers: [
+                {
+                    name: "DOMAIN LAYER",
+                    type: "domain",
+                    description: "Tầng nghiệp vụ cốt lõi: chứa logic chính của hệ thống. Bao gồm các thực thể (Entities), đối tượng giá trị (Value Objects), enum, sự kiện, exception và interface. Hoàn toàn độc lập, không phụ thuộc database hay framework.",
+                    folders: [
+                        {
+                            name: "Entities/",
+                            description: "Các đối tượng chính trong hệ thống, đại diện cho thực thể thực tế (như người dùng, sản phẩm, đơn hàng). Mỗi entity có Id riêng để phân biệt, và chứa hành vi nghiệp vụ (business logic) đảm bảo dữ liệu hợp lệ.",
+                            files: [
+                                {
+                                    name: "User.cs",
+                                    responsibility: "Quản lý thông tin người dùng: email, mật khẩu, roles. Chứa các phương thức xử lý nghiệp vụ liên quan trực tiếp đến user."
+                                },
+                                {
+                                    name: "Product.cs",
+                                    responsibility: "Quản lý sản phẩm: giá, tồn kho, validation. Chứa các phương thức tính toán giá, kiểm tra số lượng hợp lệ."
+                                },
+                                {
+                                    name: "Order.cs",
+                                    responsibility: "Quản lý đơn hàng: trạng thái, tính tổng tiền, kiểm tra hợp lệ. Chứa phương thức xử lý hành vi nghiệp vụ."
+                                },
+                                {
+                                    name: "BaseEntity.cs (abstract)",
+                                    responsibility: "Lớp cơ sở cho entity: cung cấp Id, CreatedAt, UpdatedAt và phương thức Validate(). Giúp các entity kế thừa có logic chung."
+                                }
+                            ]
+                        },
+                        {
+                            name: "ValueObjects/",
+                            description: "Các đối tượng giá trị: đại diện cho thông tin hoặc khái niệm cụ thể. Không có Id riêng, so sánh dựa trên giá trị, và immutable (không thay đổi sau khi tạo). Ví dụ: Email, Address.",
+                            files: [
+                                {
+                                    name: "Email.cs",
+                                    responsibility: "Đối tượng email: kiểm tra định dạng, so sánh giá trị. Immutable, đảm bảo email hợp lệ cho User."
+                                },
+                                {
+                                    name: "Address.cs",
+                                    responsibility: "Đối tượng địa chỉ: street, city, zip code, format chuẩn, immutable. Dùng trong User hoặc Order."
+                                },
+                                {
+                                    name: "BaseValueObject.cs (abstract)",
+                                    responsibility: "Lớp cơ sở cho Value Object: cung cấp phương thức so sánh giá trị và hashcode chung."
+                                }
+                            ]
+                        },
+                        {
+                            name: "Enums/",
+                            description: "Các giá trị cố định dùng trong nghiệp vụ, giúp code dễ đọc, tránh dùng string hoặc số cứng.",
+                            files: [
+                                {
+                                    name: "OrderStatus.cs",
+                                    responsibility: "Trạng thái đơn hàng: Pending, Confirmed, Shipping, Delivered, Cancelled."
+                                },
+                                {
+                                    name: "UserRole.cs",
+                                    responsibility: "Vai trò người dùng: Admin, Customer, Moderator, Guest."
+                                }
+                            ]
+                        },
+                        {
+                            name: "Events/",
+                            description: "Các sự kiện nghiệp vụ xảy ra trong domain, chỉ chứa dữ liệu, không thực hiện hành động.",
+                            files: [
+                                {
+                                    name: "UserRegisteredEvent.cs",
+                                    responsibility: "Kích hoạt khi user đăng ký thành công. Application layer có thể subscribe để gửi email hoặc log."
+                                }
+                            ]
+                        },
+                        {
+                            name: "Exceptions/",
+                            description: "Các lỗi nghiệp vụ trong domain, dùng để báo khi business rule bị vi phạm.",
+                            files: [
+                                {
+                                    name: "DomainException.cs",
+                                    responsibility: "Base exception cho tất cả domain errors. Entity hoặc ValueObject throw khi validation thất bại."
+                                }
+                            ]
+                        },
+                        {
+                            name: "Interfaces/",
+                            description: "Các hợp đồng (interface) mà domain cần nhưng không implement, bao gồm repository và domain service.",
+                            files: [
+                                {
+                                    name: "IRepository.cs",
+                                    responsibility: "Interface cơ bản cho repository: Add, Update, Delete, FindById, FindAll."
+                                },
+                                {
+                                    name: "IUserRepository.cs",
+                                    responsibility: "Interface riêng cho user: GetByEmail, GetWithOrders. Implementation ở Infrastructure layer."
+                                },
+                                {
+                                    name: "IDomainService.cs (abstract)",
+                                    responsibility: "Lớp trừu tượng cho domain service: định nghĩa các phương thức nghiệp vụ chung mà entity hoặc application có thể sử dụng."
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    name: "APPLICATION LAYER",
+                    type: "application",
+                    description: "Tầng điều phối các use case và workflow. Chứa logic xử lý dữ liệu, validation, mapping, logging. Application layer tham chiếu Domain nhưng không phụ thuộc vào Infrastructure.",
+                    folders: [
+                        {
+                            name: "Common/Interfaces/",
+                            description: "Các interface chung cho service dùng trong nhiều use case.",
+                            files: [
+                                {
+                                    name: "ICurrentUserService.cs",
+                                    responsibility: "Cung cấp thông tin về người dùng hiện tại: Id, Name, Roles. Application layer dùng interface này, implementation nằm ở Infrastructure."
+                                },
+                                {
+                                    name: "IDateTimeService.cs",
+                                    responsibility: "Cung cấp thời gian hiện tại (Now, UtcNow, Today) để use case dễ test. Implementation ở Infrastructure."
+                                }
+                            ]
+                        },
+                        {
+                            name: "Common/Behaviors/",
+                            description: "Các pipeline behavior cho CQRS/MediatR, dùng để xử lý chung trước hoặc sau command/query.",
+                            files: [
+                                {
+                                    name: "LoggingBehavior.cs",
+                                    responsibility: "Ghi log cho mọi request/response trong pipeline, giúp dễ debug và theo dõi hành vi hệ thống."
+                                },
+                                {
+                                    name: "ValidationBehavior.cs",
+                                    responsibility: "Validate request tự động trước khi xử lý command hoặc query, đảm bảo dữ liệu hợp lệ."
+                                }
+                            ]
+                        },
+                        {
+                            name: "Features/Users/Commands/",
+                            description: "Command: các thao tác thay đổi dữ liệu của user.",
+                            files: [
+                                {
+                                    name: "CreateUser/",
+                                    responsibility: "Tạo user mới: validate dữ liệu đầu vào, hash password, trigger domain events, gửi email chào mừng."
+                                },
+                                {
+                                    name: "UpdateUser/",
+                                    responsibility: "Cập nhật thông tin user: validate, cập nhật profile, log các thay đổi."
+                                }
+                            ]
+                        },
+                        {
+                            name: "Features/Users/Queries/",
+                            description: "Query: các thao tác lấy dữ liệu, không thay đổi trạng thái hệ thống.",
+                            files: [
+                                {
+                                    name: "GetUsers/",
+                                    responsibility: "Lấy danh sách users: hỗ trợ phân trang (pagination), lọc (filter), sắp xếp (sort)."
+                                },
+                                {
+                                    name: "GetUserById/",
+                                    responsibility: "Lấy thông tin user theo Id: kèm dữ liệu liên quan (include), kiểm tra quyền truy cập."
+                                }
+                            ]
+                        },
+                        {
+                            name: "DTOs/",
+                            description: "Data Transfer Object: chuẩn hóa dữ liệu trao đổi giữa Application và Presentation layer.",
+                            files: [
+                                {
+                                    name: "UserDto.cs",
+                                    responsibility: "Chỉ expose dữ liệu cần thiết của user cho client, không để lộ thông tin nhạy cảm như mật khẩu."
+                                },
+                                {
+                                    name: "ProductDto.cs",
+                                    responsibility: "Expose dữ liệu sản phẩm: giá, khuyến mãi, định dạng hiển thị, giúp client hiển thị đúng thông tin."
+                                }
+                            ]
+                        },
+                        {
+                            name: "Mappings/",
+                            description: "Cấu hình mapping giữa Entity, DTO và Command/Query, giúp chuyển đổi dữ liệu dễ dàng.",
+                            files: [
+                                {
+                                    name: "MappingProfile.cs",
+                                    responsibility: "Định nghĩa cách map Entity <-> DTO, Command <-> Entity. Giúp tránh viết code chuyển đổi thủ công."
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    name: "INFRASTRUCTURE LAYER",
+                    type: "infrastructure",
+                    description: "Tầng cơ sở hạ tầng: triển khai repository, service, logging, email, authentication. Reference Domain + Application layer.",
+                    folders: [
+                        {
+                            name: "Data/",
+                            description: "Chứa DbContext và cấu hình entity để kết nối và quản lý database.",
+                            files: [
+                                {
+                                    name: "ApplicationDbContext.cs",
+                                    responsibility: "DbContext chính của ứng dụng: định nghĩa các DbSet, relationships giữa entity, cấu hình chung cho các entity."
+                                },
+                                {
+                                    name: "Configurations/UserConfiguration.cs",
+                                    responsibility: "Cấu hình chi tiết cho entity User: tên bảng, tên cột, chỉ mục (index), constraints."
+                                },
+                                {
+                                    name: "Migrations/",
+                                    responsibility: "Chứa các file migration: tạo, cập nhật hoặc rollback database schema."
+                                }
+                            ]
+                        },
+                        {
+                            name: "Repositories/",
+                            description: "Triển khai các repository theo interface đã định nghĩa trong Domain/Application.",
+                            files: [
+                                {
+                                    name: "UserRepository.cs",
+                                    responsibility: "Implement IUserRepository: truy vấn dữ liệu User bằng EF Core, xử lý business logic liên quan dữ liệu."
+                                },
+                                {
+                                    name: "ProductRepository.cs",
+                                    responsibility: "Implement IProductRepository: truy vấn dữ liệu Product, xử lý logic liên quan product."
+                                }
+                            ]
+                        },
+                        {
+                            name: "Services/",
+                            description: "Triển khai các service dùng trong ứng dụng, như gửi email, lấy thời gian hiện tại, logging.",
+                            files: [
+                                {
+                                    name: "DateTimeService.cs",
+                                    responsibility: "Implement IDateTimeService: trả về thời gian hiện tại (Now, UtcNow) cho use case."
+                                },
+                                {
+                                    name: "EmailService.cs",
+                                    responsibility: "Gửi email: cấu hình SMTP, template, quản lý queue gửi email."
+                                }
+                            ]
+                        },
+                        {
+                            name: "Identity/",
+                            description: "Xác thực và phân quyền người dùng.",
+                            files: [
+                                {
+                                    name: "IdentityService.cs",
+                                    responsibility: "Quản lý authentication: tạo user, đăng nhập, phát JWT token, quản lý quyền truy cập."
+                                }
+                            ]
+                        },
+                        {
+                            name: "Logging/",
+                            description: "Ghi log hệ thống, phục vụ debug và giám sát.",
+                            files: [
+                                {
+                                    name: "LoggerService.cs",
+                                    responsibility: "Structured logging: ghi log ra file, database, định dạng log chuẩn, theo dõi request và errors."
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    name: "PRESENTATION LAYER",
+                    type: "presentation",
+                    description: "Tầng giao diện của ứng dụng: xử lý HTTP request và response, định nghĩa API controllers, middleware, filters. Tham chiếu Application và Infrastructure để gọi use cases và services thông qua DI (Dependency Injection).",
+                    folders: [
+                        {
+                            name: "Controllers/",
+                            description: "Chứa các API endpoint, gọi use cases từ Application layer, trả về dữ liệu chuẩn cho client.",
+                            files: [
+                                {
+                                    name: "UsersController.cs",
+                                    responsibility: "CRUD user: tạo, đọc, cập nhật, xóa. Gọi use case từ Application, validate dữ liệu, format response chuẩn."
+                                },
+                                {
+                                    name: "ProductsController.cs",
+                                    responsibility: "CRUD product, tìm kiếm (search), lọc (filter). Kết nối với Application layer để xử lý nghiệp vụ."
+                                },
+                                {
+                                    name: "BaseApiController.cs",
+                                    responsibility: "Base controller dùng chung cho các controller khác: định nghĩa logic chuẩn, xử lý exception cơ bản, chuẩn hóa response."
+                                }
+                            ]
+                        },
+                        {
+                            name: "Middleware/",
+                            description: "Các middleware tuỳ chỉnh, chạy trong pipeline xử lý request/response.",
+                            files: [
+                                {
+                                    name: "ExceptionMiddleware.cs",
+                                    responsibility: "Bắt lỗi toàn cục (global exception), log lỗi, trả về response chuẩn với thông tin lỗi."
+                                },
+                                {
+                                    name: "LoggingMiddleware.cs",
+                                    responsibility: "Ghi log request và response: thời gian thực hiện, status code, user agent, phục vụ debug và giám sát."
+                                }
+                            ]
+                        },
+                        {
+                            name: "Filters/",
+                            description: "Action filter dùng cho các controller để xử lý trước hoặc sau action method.",
+                            files: [
+                                {
+                                    name: "ValidationFilter.cs",
+                                    responsibility: "Validate model state tự động, trả về lỗi nếu dữ liệu gửi từ client không hợp lệ, tránh phải validate thủ công trong từng action."
+                                }
+                            ]
+                        },
+                        {
+                            name: "Extensions/",
+                            description: "Chứa các extension method để mở rộng chức năng và setup DI container.",
+                            files: [
+                                {
+                                    name: "ServiceCollectionExtensions.cs",
+                                    responsibility: "Đăng ký services, cấu hình middleware, setup Dependency Injection cho toàn bộ ứng dụng."
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        };
+
+
+
+        function renderArchitecture() {
+            const container = document.getElementById('layers');
+
+            architectureData.layers.forEach(layer => {
+                const layerElement = document.createElement('div');
+                layerElement.className = `layer layer-${layer.type}`;
+
+                let foldersHTML = '';
+                layer.folders.forEach(folder => {
+                    let filesHTML = '';
+                    folder.files.forEach(file => {
+                        filesHTML += `
+                            <div class="file-item">
+                                <span class="file-icon">📄</span>
+                                <strong>${file.name}</strong>
+                                <div class="responsibility">${file.responsibility}</div>
+                            </div>
+                        `;
+                    });
+
+                    foldersHTML += `
+                        <div class="folder-item">
+                            <div class="folder-header" onclick="toggleFolder(this)">
+                                <span class="folder-icon">📁</span>
+                                <h3>${folder.name}</h3>
+                            </div>
+                            <div class="folder-content">
+                                <p><em>${folder.description}</em></p>
+                                ${filesHTML}
+                            </div>
+                        </div>
+                    `;
+                });
+
+                layerElement.innerHTML = `
+                    <h2>${layer.name}</h2>
+                    <p>${layer.description}</p>
+                    ${foldersHTML}
+                `;
+
+                container.appendChild(layerElement);
+            });
+        }
+        function toggleFolder(element) {
+            const folderItem = element.parentElement;
+            folderItem.classList.toggle('folder-expanded');
+        }
+
+        document.addEventListener('DOMContentLoaded', renderArchitecture);
+    </script>
+</body>
+
+</html>
